@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash'
 
 import Row from './components/row'
 import LabelFilter from './components/label_filter'
@@ -6,18 +7,17 @@ import LabelFilter from './components/label_filter'
 class App extends Component {
   displayIssues() {
     const { issues } = this.props
-    const predicate = label => {
-      const { name } = label
 
-      return name && name !== 'draft' && name.startsWith( 'team-size-' )
-    }
+    const teamSizePredicate = label =>
+      ( label.name || '' ).startsWith( 'team-size' )
 
-    const issuePredicate = issue => {
-      debugger
-      return issue.labels.filter( predicate ).length > 0
-    }
+    const draftPredicate = label => label.name === 'draft'
 
-    return issues.filter( issuePredicate )
+    const issuePredicate = issue =>
+      ! _.filter( issue.labels, draftPredicate ).length > 0 &&
+      _.filter( issue.labels, teamSizePredicate ).length > 0
+
+    return _.filter( issues, issuePredicate )
   }
 
   rows() {
